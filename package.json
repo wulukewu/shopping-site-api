@@ -1,0 +1,19 @@
+{
+  "name": "shopping-site-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wulukewu/shopping-site-api.git"
+  },
+  "author": "Luke",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wulukewu/shopping-site-api/issues"
+  },
+  "homepage": "https://github.com/wulukewu/shopping-site-api#readme"
+}
