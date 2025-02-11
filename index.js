@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
-const Product = require('./models/Product');
+const Product = require('./models/Product'); // Import the Product model
+
 const app = express();
 const port = 3000;
 
@@ -21,31 +21,10 @@ mongoose
   })
   .then(() => {
     console.log('Connected to MongoDB');
-    seedDatabase(); // Call the seedDatabase function after connecting
   })
   .catch((err) => {
     console.error('MongoDB connection error:', err);
   });
-
-// Load products from products.json
-const products = JSON.parse(
-  fs.readFileSync('../shopping-site/public/products.json', 'utf-8')
-);
-
-// Seed the database (load initial data)
-async function seedDatabase() {
-  try {
-    const count = await Product.countDocuments();
-    if (count === 0) {
-      await Product.insertMany(products);
-      console.log('Database seeded with products');
-    } else {
-      console.log('Database already contains products. Skipping seeding.');
-    }
-  } catch (err) {
-    console.error('Error seeding database:', err);
-  }
-}
 
 // Get all products from the database
 app.get('/products', async (req, res) => {
