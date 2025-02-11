@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/wulukewu/shopping-site-api/issues"
   },
-  "homepage": "https://github.com/wulukewu/shopping-site-api#readme"
+  "homepage": "https://github.com/wulukewu/shopping-site-api#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
 }
