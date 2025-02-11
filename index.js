@@ -58,6 +58,58 @@ app.get('/products', async (req, res) => {
   }
 });
 
+app.post('/products', async (req, res) => {
+  try {
+    const newProduct = new Product(req.body);
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct); // 201 Created
+  } catch (err) {
+    console.error('Error creating product:', err);
+    res.status(400).json({ message: err.message }); // 400 Bad Request
+  }
+});
+
+app.get('/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' }); // 404 Not Found
+    }
+    res.json(product);
+  } catch (err) {
+    console.error('Error getting product:', err);
+    res.status(500).json({ message: err.message }); // 500 Internal Server Error
+  }
+});
+
+app.put('/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' }); // 404 Not Found
+    }
+    res.json(product);
+  } catch (err) {
+    console.error('Error updating product:', err);
+    res.status(400).json({ message: err.message }); // 400 Bad Request
+  }
+});
+
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' }); // 404 Not Found
+    }
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    console.error('Error deleting product:', err);
+    res.status(500).json({ message: err.message }); // 500 Internal Server Error
+  }
+});
+
 app.listen(port, () => {
   console.log(`Shopping Site API listening at http://localhost:${port}`);
 });
