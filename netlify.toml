@@ -1,2 +1,5 @@
 [build]
   functions = "functions-build"
+
+[functions]
+  included_files = ["functions-build/**/*.js", "models/**"]

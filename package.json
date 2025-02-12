@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "build": "netlify deploy --prod",
-    "test": "mocha"
+    "build": "npm run build:lambda",
+    "test": "mocha",
+    "build:lambda": "netlify-lambda build functions-build"
   },
   "repository": {
     "type": "git",
@@ -25,12 +26,13 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
-    "nodemon": "^3.1.9",
     "serverless-http": "^3.2.0"
   },
   "devDependencies": {
-    "mocha": "^11.1.0",
+    "@netlify/plugin-functions-install-core": "^1.6.1",
     "netlify-cli": "^18.0.4",
-    "netlify-lambda": "^2.0.16"
+    "netlify-lambda": "^2.0.16",
+    "mocha": "^11.1.0",
+    "nodemon": "^3.1.9"
   }
 }
