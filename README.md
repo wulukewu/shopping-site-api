@@ -143,9 +143,11 @@ Check out the live demo of the project [here](https://shopping-site.luke-ray.sit
 
 ```javascript
 {
+  id: String,
+  category: Array,
   name: String,
-  description: String,
   price: Number,
+  description: String
   // ... other product properties
 }
 ```
