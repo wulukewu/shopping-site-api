@@ -2,6 +2,14 @@
 
 This is the backend API for a shopping site, built with Node.js, Express.js, and MongoDB. It provides user authentication (registration and login) and manages product data.  This version is configured to run both locally and as a serverless function on Netlify.
 
+## Frontend Repository
+
+The frontend repository for this project can be found [here](https://github.com/wulukewu/shopping-site).
+
+## Demo
+
+Check out the live demo of the project [here](https://shopping-site.luke-ray.site).
+
 ## Features
 
 *   **User Authentication:**
