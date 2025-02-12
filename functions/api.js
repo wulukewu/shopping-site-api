@@ -4,8 +4,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Product = require('../../models/Product');
-const User = require('../../models/User');
+const Product = require('../models/Product');
+const User = require('../models/User');
 
 const app = express();
 const port = 3000; // This port won't be directly used in Netlify Functions
