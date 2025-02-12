@@ -165,6 +165,6 @@ router.delete('/products/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.use('/.netlify/functions/api', router);
+app.use('/.netlify/functions-build/api', router);
 
 module.exports.handler = serverless(app);
