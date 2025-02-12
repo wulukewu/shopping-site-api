@@ -30,6 +30,11 @@ mongoose
     console.error('MongoDB connection error:', err);
   });
 
+// Default Route
+app.get('/', (req, res) => {
+  res.send('Shopping Site API');
+});
+
 // Register (Signup) Route
 app.post('/register', async (req, res) => {
   try {
