@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -14,8 +16,8 @@ app.use(express.json());
 app.use(cors());
 
 // MongoDB Connection
-const mongoose_url =
-  'mongodb+srv://dbUser:6PVLqEdkaKiNBgTe@shopping-site.mch4s.mongodb.net/?retryWrites=true&w=majority&appName=shopping-site';
+const mongoose_url = process.env.MONGODB_URL;
+console.log('MongoDB URL:', mongoose_url);
 mongoose
   .connect(mongoose_url, {
     useNewUrlParser: true,
