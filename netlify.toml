@@ -1,5 +1,2 @@
 [build]
-  functions = "netlify/functions"
-
-[dev]
-  functionsPort = 3000
+  functions = "functions"

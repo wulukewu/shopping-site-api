@@ -6,9 +6,11 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Product = require('../models/Product');
 const User = require('../models/User');
+const serverless = require('serverless-http');
 
 const app = express();
-const port = 3000; // This port won't be directly used in Netlify Functions
+const router = express.Router();
+
 const secretKey = process.env.SECRET_KEY;
 
 app.use(express.json());
@@ -31,13 +33,12 @@ mongoose
   });
 
 // Register (Signup) Route
-app.post('/register', async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const { username, password, email } = req.body;
     const newUser = new User({ username, password, email });
     await newUser.save();
-    res.body = { message: 'User registered successfully' };
-    res.status(201).send(res.body);
+    res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(400).json({ message: error.message });
@@ -45,7 +46,7 @@ app.post('/register', async (req, res) => {
 });
 
 // Login Route
-app.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
@@ -62,8 +63,7 @@ app.post('/login', async (req, res) => {
     const token = jwt.sign({ userId: user._id }, secretKey, {
       expiresIn: '1h',
     });
-    res.body = { message: 'Login successful', token };
-    res.send(res.body);
+    res.json({ message: 'Login successful', token });
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ message: 'Login failed' });
@@ -89,20 +89,15 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Example protected route
-app.get('/protected', authenticateToken, (req, res) => {
-  res.body = {
-    message: 'Protected resource accessed',
-    userId: req.user.userId,
-  };
-  res.send(res.body);
+router.get('/protected', authenticateToken, (req, res) => {
+  res.json({ message: 'Protected resource accessed', userId: req.user.userId });
 });
 
 // Get all products
-app.get('/products', async (req, res) => {
+router.get('/products', async (req, res) => {
   try {
     const products = await Product.find();
-    res.body = products;
-    res.send(res.body);
+    res.json(products);
   } catch (err) {
     console.error('Error getting products:', err);
     res.status(500).json({ message: err.message });
@@ -110,12 +105,11 @@ app.get('/products', async (req, res) => {
 });
 
 // Create a product (protected)
-app.post('/products', authenticateToken, async (req, res) => {
+router.post('/products', authenticateToken, async (req, res) => {
   try {
     const newProduct = new Product(req.body);
     const savedProduct = await newProduct.save();
-    res.body = savedProduct;
-    res.status(201).send(res.body);
+    res.status(201).json(savedProduct);
   } catch (err) {
     console.error('Error creating product:', err);
     res.status(400).json({ message: err.message });
@@ -123,14 +117,13 @@ app.post('/products', authenticateToken, async (req, res) => {
 });
 
 // Get a single product
-app.get('/products/:id', async (req, res) => {
+router.get('/products/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    res.body = product;
-    res.send(res.body);
+    res.json(product);
   } catch (err) {
     console.error('Error getting product:', err);
     res.status(500).json({ message: err.message });
@@ -138,7 +131,7 @@ app.get('/products/:id', async (req, res) => {
 });
 
 // Update a product (protected)
-app.put('/products/:id', authenticateToken, async (req, res) => {
+router.put('/products/:id', authenticateToken, async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -146,45 +139,27 @@ app.put('/products/:id', authenticateToken, async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    res.body = product;
-    res.send(res.body);
+    res.json(product);
   } catch (err) {
     console.error('Error updating product:', err);
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message: error.message });
   }
 });
 
 // Delete a product (protected)
-app.delete('/products/:id', authenticateToken, async (req, res) => {
+router.delete('/products/:id', authenticateToken, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    res.body = { message: 'Product deleted' };
-    res.send(res.body);
+    res.json({ message: 'Product deleted' });
   } catch (err) {
     console.error('Error deleting product:', err);
     res.status(500).json({ message: err.message });
   }
 });
 
-// Export the handler function for Netlify Functions
-exports.handler = async (event, context) => {
-  const server = app.listen(port, () => {
-    console.log(`Shopping Site API listening at http://localhost:${port}`);
-  });
+app.use('/.netlify/functions/api', router);
 
-  // Handle requests to the Express app
-  return new Promise((resolve, reject) => {
-    server.on('request', (req, res) => {
-      resolve({
-        statusCode: res.statusCode,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(res.body), // Convert the response body to JSON string
-      });
-    });
-  });
-};
+module.exports.handler = serverless(app);

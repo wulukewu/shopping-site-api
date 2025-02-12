@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "netlify deploy --prod",
     "start": "nodemon index.js",
+    "dev": "netlify dev",
+    "build": "npm run build:lambda",
+    "build:lambda": "netlify-lambda build functions",
+    "deploy": "netlify deploy --prod",
     "test": "mocha"
   },
   "repository": {
@@ -25,12 +28,12 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
-    "netlify-cli": "^18.0.4",
-    "netlify-lambda": "^2.0.16",
     "nodemon": "^3.1.9",
     "serverless-http": "^3.2.0"
   },
   "devDependencies": {
-    "mocha": "^11.1.0"
+    "mocha": "^11.1.0",
+    "netlify-cli": "^18.0.4",
+    "netlify-lambda": "^2.0.16"
   }
 }
