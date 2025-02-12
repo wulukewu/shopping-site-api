@@ -26,11 +26,11 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.0",
-    "serverless-http": "^3.2.0"
+    "serverless-http": "^3.2.0",
+    "netlify-cli": "^18.0.4",
+    "netlify-lambda": "^2.0.16"
   },
   "devDependencies": {
-    "netlify-cli": "^18.0.4",
-    "netlify-lambda": "^2.0.16",
     "mocha": "^11.1.0",
     "nodemon": "^3.1.9"
   }
