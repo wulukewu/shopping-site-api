@@ -5,10 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "dev": "netlify dev",
-    "build": "npm run build:lambda",
-    "build:lambda": "netlify-lambda build functions",
-    "deploy": "netlify deploy --prod",
+    "build": "netlify deploy --prod",
     "test": "mocha"
   },
   "repository": {
