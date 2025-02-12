@@ -10,7 +10,7 @@ const User = require('./models/User');
 
 const app = express();
 const port = 3000;
-const secretKey = 'saturate-unnamable-emergency';
+const secretKey = process.env.SECRET_KEY;
 
 app.use(express.json());
 app.use(cors());
