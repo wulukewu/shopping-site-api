@@ -166,5 +166,9 @@ router.delete('/products/:id', authenticateToken, async (req, res) => {
 });
 
 app.use('/.netlify/functions-build/api', router);
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
 module.exports.handler = serverless(app);
