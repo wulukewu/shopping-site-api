@@ -11,33 +11,34 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // Add any other user-related fields here, like email, name, etc.
   email: {
     type: String,
     required: true,
     unique: true,
+    match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   },
 });
 
-// Hash the password before saving the user
+// Hash the password before saving
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-
+  if (!this.isModified('password')) {
+    return next();
+  }
   try {
-    const salt = await bcrypt.genSalt(10); // Generate a salt
-    this.password = await bcrypt.hash(this.password, salt); // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
     return next(error);
   }
 });
 
-// Method to compare passwords for login
+// Method to compare passwords
 userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (error) {
-    throw new Error(error);
+    throw error;
   }
 };
 

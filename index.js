@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -7,7 +6,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Product = require('./models/Product');
 const User = require('./models/User');
-
 const app = express();
 const port = 3000;
 const secretKey = process.env.SECRET_KEY;
@@ -18,6 +16,7 @@ app.use(cors());
 // MongoDB Connection
 const mongoose_url = process.env.MONGODB_URL;
 console.log('MongoDB URL:', mongoose_url);
+
 mongoose
   .connect(mongoose_url, {
     useNewUrlParser: true,
@@ -55,12 +54,14 @@ app.post('/login', async (req, res) => {
 
     // Find the user by username
     const user = await User.findOne({ username });
+
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' }); // Respond with an error if user not found
     }
 
     // Compare the provided password with the stored password
     const isPasswordValid = await user.comparePassword(password);
+
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' }); // Respond with an error if passwords do not match
     }
@@ -97,6 +98,49 @@ const authenticateToken = (req, res, next) => {
     next(); // Proceed to the next middleware or route handler
   });
 };
+
+// Get user by ID (requires authentication)
+app.get('/users/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const userProfile = {
+      username: user.username,
+      email: user.email,
+    };
+
+    res.json(userProfile);
+  } catch (err) {
+    console.error('Error getting user:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update profile route
+app.put('/users/profile', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Get user ID from the authenticated token
+    const { username, password } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (username) {
+      user.username = username;
+    }
+    if (password) {
+      user.password = password;
+    }
+    await user.save(); // Save the updated user to the database
+    res.json({ message: 'Profile updated successfully' });
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    res.status(400).json({ message: err.message }); // 400 Bad Request
+  }
+});
 
 // Example protected route (requires authentication)
 app.get('/protected', authenticateToken, (req, res) => {
