@@ -8,6 +8,8 @@ The frontend repository for this project can be found [here](https://github.com/
 
 ## Demo
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/703b5dd8-fafe-4434-a8ab-0644ab7f1b4b/deploy-status)](https://app.netlify.com/sites/shopping-site-api/deploys)
+
 Check out the live demo of the project [here](https://shopping-site.luke-ray.site).
 
 ## Features
