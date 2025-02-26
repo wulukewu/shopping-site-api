@@ -1,11 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
+const { Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Product = require('./models/Product');
-const User = require('./models/User');
+
+// Initialize Express
 const app = express();
 const port = 3000;
 const secretKey = process.env.SECRET_KEY;
@@ -13,105 +13,84 @@ const secretKey = process.env.SECRET_KEY;
 app.use(express.json());
 app.use(cors());
 
-// MongoDB Connection
-const mongoose_url = process.env.MONGODB_URL;
-console.log('MongoDB URL:', mongoose_url);
-
-mongoose
-  .connect(mongoose_url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-  });
-
-// Default Route
-app.get('/', (req, res) => {
-  res.send('Shopping Site API');
+// Initialize Sequelize
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: 'database.sqlite',
+  logging: false,
 });
 
-// Register (Signup) Route
-app.post('/register', async (req, res) => {
-  try {
-    const { username, password, email } = req.body; // Get username, password and email from request body
-    const newUser = new User({ username, password, email }); // Create a new user instance
-    await newUser.save(); // Save the new user to the database
-    res.status(201).json({ message: 'User registered successfully' }); // Respond with a success message
-  } catch (error) {
-    console.error('Error registering user:', error); // Log any errors
-    res.status(400).json({ message: error.message }); // Respond with an error message
-  }
-});
+// Load Models
+const ProductModel = require('./models/Product');
+const UserModel = require('./models/User');
 
-// Login Route
-app.post('/login', async (req, res) => {
-  try {
-    const { username, password } = req.body; // Get username and password from request body
+const Product = ProductModel(sequelize);
+const User = UserModel(sequelize);
 
-    // Find the user by username
-    const user = await User.findOne({ username });
+// Database Associations (if needed)
+// Example: User.hasMany(Product);
+// Product.belongsTo(User);
 
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' }); // Respond with an error if user not found
-    }
-
-    // Compare the provided password with the stored password
-    const isPasswordValid = await user.comparePassword(password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' }); // Respond with an error if passwords do not match
-    }
-
-    // Generate a JWT token
-    const token = jwt.sign({ userId: user._id }, secretKey, {
-      expiresIn: '1h',
-    }); // Sign a JWT token with user ID and secret key
-
-    // Respond with the token and a success message
-    res.json({ message: 'Login successful', token });
-  } catch (error) {
-    console.error('Error logging in:', error); // Log any errors
-    res.status(500).json({ message: 'Login failed' }); // Respond with a server error message
-  }
-});
-
-// Middleware to authenticate JWT token
+// Authentication Middleware
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization']; // Get the authorization header
-  const token = authHeader && authHeader.split(' ')[1]; // Extract the token from the header
-
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ message: 'Authentication required' }); // Respond with an error if no token is present
+    return res.status(401).json({ message: 'Authentication required' });
   }
-
   jwt.verify(token, secretKey, (err, user) => {
-    // Verify the JWT token
     if (err) {
-      return res.status(403).json({ message: 'Invalid token' }); // Respond with an error if the token is invalid
+      return res.status(403).json({ message: 'Invalid token' });
     }
-
-    req.user = user; // Attach the user information to the request object
-    next(); // Proceed to the next middleware or route handler
+    req.user = user;
+    next();
   });
 };
 
-// Get user by ID (requires authentication)
+// API Routes
+app.post('/register', async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
+    const user = await User.create({ username, password, email });
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+app.post('/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ where: { username } });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
+    res.json({ message: 'Login successful', token });
+  } catch (error) {
+    console.error('Error logging in:', error);
+    res.status(500).json({ message: 'Login failed' });
+  }
+});
+
+// Get user by ID
 app.get('/users/:id', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
     const userProfile = {
       username: user.username,
       email: user.email,
     };
-
     res.json(userProfile);
   } catch (err) {
     console.error('Error getting user:', err);
@@ -124,7 +103,7 @@ app.put('/users/profile', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.userId; // Get user ID from the authenticated token
     const { username, password } = req.body;
-    const user = await User.findById(userId);
+    const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -132,7 +111,8 @@ app.put('/users/profile', authenticateToken, async (req, res) => {
       user.username = username;
     }
     if (password) {
-      user.password = password;
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
     }
     await user.save(); // Save the updated user to the database
     res.json({ message: 'Profile updated successfully' });
@@ -142,15 +122,15 @@ app.put('/users/profile', authenticateToken, async (req, res) => {
   }
 });
 
-// Example protected route (requires authentication)
+// Protected route
 app.get('/protected', authenticateToken, (req, res) => {
-  res.json({ message: 'Protected resource accessed', userId: req.user.userId }); // Respond with a success message and user ID
+  res.json({ message: 'Protected resource accessed', userId: req.user.userId });
 });
 
-// Get all products from the database
+// Products API Endpoints
 app.get('/products', async (req, res) => {
   try {
-    const products = await Product.find(); // Fetch from the DB
+    const products = await Product.findAll();
     res.json(products);
   } catch (err) {
     console.error('Error getting products:', err);
@@ -160,56 +140,63 @@ app.get('/products', async (req, res) => {
 
 app.post('/products', authenticateToken, async (req, res) => {
   try {
-    const newProduct = new Product(req.body);
-    const savedProduct = await newProduct.save();
-    res.status(201).json(savedProduct); // 201 Created
+    const product = await Product.create(req.body);
+    res.status(201).json(product);
   } catch (err) {
     console.error('Error creating product:', err);
-    res.status(400).json({ message: err.message }); // 400 Bad Request
+    res.status(400).json({ message: err.message });
   }
 });
 
 app.get('/products/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findByPk(req.params.id);
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' }); // 404 Not Found
+      return res.status(404).json({ message: 'Product not found' });
     }
     res.json(product);
   } catch (err) {
     console.error('Error getting product:', err);
-    res.status(500).json({ message: err.message }); // 500 Internal Server Error
+    res.status(500).json({ message: err.message });
   }
 });
 
 app.put('/products/:id', authenticateToken, async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const product = await Product.findByPk(req.params.id);
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' }); // 404 Not Found
+      return res.status(404).json({ message: 'Product not found' });
     }
+    await product.update(req.body);
     res.json(product);
   } catch (err) {
     console.error('Error updating product:', err);
-    res.status(400).json({ message: err.message }); // 400 Bad Request
+    res.status(400).json({ message: err.message });
   }
 });
 
 app.delete('/products/:id', authenticateToken, async (req, res) => {
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findByPk(req.params.id);
     if (!product) {
-      return res.status(404).json({ message: 'Product not found' }); // 404 Not Found
+      return res.status(404).json({ message: 'Product not found' });
     }
+    await product.destroy();
     res.json({ message: 'Product deleted' });
   } catch (err) {
     console.error('Error deleting product:', err);
-    res.status(500).json({ message: err.message }); // 500 Internal Server Error
+    res.status(500).json({ message: err.message });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Shopping Site API listening at http://localhost:${port}`);
-});
+// Sync the database and start the server
+sequelize
+  .sync()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error syncing database:', error);
+  });
