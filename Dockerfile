@@ -13,6 +13,9 @@ RUN npm install
 # Copy the application source code to the working directory
 COPY . .
 
+# Create the database directory
+RUN mkdir -p ./database
+
 # Expose the port the app will run on
 EXPOSE 3000
 
