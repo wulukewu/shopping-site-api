@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/wulukewu/shopping-site-api/compare/v1.0.0...v1.1.0) (2025-02-26)
+
+
+### Features
+
+* mongodb -&gt; sqlite3 ([84ee2b4](https://github.com/wulukewu/shopping-site-api/commit/84ee2b46e0583c866959686a539d3df1fd514fd6))
+
+
+### Bug Fixes
+
+* path database to database folder ([4662358](https://github.com/wulukewu/shopping-site-api/commit/46623580815f1622aa9f0a8e982f3840486fad60))
+
 ## 1.0.0 (2025-02-26)
 
 
