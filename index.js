@@ -16,7 +16,7 @@ app.use(cors());
 // Initialize Sequelize
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: 'database.sqlite',
+  storage: './database/database.sqlite',
   logging: false,
 });
 
