@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/wulukewu/shopping-site-api/compare/v1.1.0...v1.1.1) (2025-02-27)
+
+
+### Bug Fixes
+
+* add database sample ([2d17473](https://github.com/wulukewu/shopping-site-api/commit/2d174733531bc60ca5e26727657d4e32f754cd06))
+
 ## [1.1.0](https://github.com/wulukewu/shopping-site-api/compare/v1.0.0...v1.1.0) (2025-02-26)
 
 
