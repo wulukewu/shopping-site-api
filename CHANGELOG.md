@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/wulukewu/shopping-site-api/compare/v1.1.1...v1.1.2) (2025-03-09)
+
+
+### Bug Fixes
+
+* rebuild bcrypt ([102c593](https://github.com/wulukewu/shopping-site-api/commit/102c593d3c34cdcab109d9d43435211eb5d3d813))
+
 ## [1.1.1](https://github.com/wulukewu/shopping-site-api/compare/v1.1.0...v1.1.1) (2025-02-27)
 
 
