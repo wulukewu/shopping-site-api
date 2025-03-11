@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/wulukewu/shopping-site-api/compare/v1.1.2...v1.2.0) (2025-03-11)
+
+
+### Features
+
+* save cart to db ([2d2a227](https://github.com/wulukewu/shopping-site-api/commit/2d2a22718477f6ce30ec29791db506e640e90621))
+
 ## [1.1.2](https://github.com/wulukewu/shopping-site-api/compare/v1.1.1...v1.1.2) (2025-03-09)
 
 
